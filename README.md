@@ -50,9 +50,25 @@ Multi-company record rules are included.
 
 ## Screenshots
 
-> Add your own screenshots in `static/description/` and reference them here, for example:
->
-> `![Kanban](static/description/screenshot_kanban.png)`
+**Maintenance requests board**
+
+![Maintenance requests kanban](static/description/screenshot_requests_kanban.png)
+
+**Devices**
+
+![Devices kanban](static/description/screenshot_devices_kanban.png)
+
+**Maintenance request with spare parts**
+
+![Maintenance request form](static/description/screenshot_request_form.png)
+
+**Printable job card (PDF)**
+
+![Job card PDF](static/description/screenshot_job_card.png)
+
+**Computed fields and constraints**
+
+![Code sample](static/description/screenshot_code.png)
 
 ---
 
