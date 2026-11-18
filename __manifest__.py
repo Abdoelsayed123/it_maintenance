@@ -15,8 +15,8 @@ A complete workflow for an IT maintenance / repair company:
 * Kanban, list, calendar, pivot and graph views
 * Printable job card (PDF)
     """,
-    'author': "Your Name",
-    'website': "https://github.com/your-username/it_maintenance",
+    'author': "Abdelrahman Elsayed",
+    'website': "https://github.com/Abdoelsayed123/it_maintenance",
     'license': 'LGPL-3',
     'category': 'Services/Maintenance',
     'version': '16.0.1.0.0',

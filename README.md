@@ -100,6 +100,6 @@ QWeb reports, migration scripts and `TransactionCase` tests.
 
 ## Author
 
-**Your Name**: [LinkedIn](https://www.linkedin.com/in/your-profile) · [GitHub](https://github.com/your-username)
+**Abdelrahman Elsayed**: [GitHub](https://github.com/Abdoelsayed123)
 
 License: [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.html)
