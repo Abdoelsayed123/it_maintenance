@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_it_maintenance_root"
+              name="IT Maintenance"
+              web_icon="it_maintenance,static/description/icon.png"
+              groups="group_it_technician"
+              sequence="40"/>
+
+    <menuitem id="menu_it_maintenance_requests"
+              name="Requests"
+              parent="menu_it_maintenance_root"
+              sequence="10"/>
+
+    <menuitem id="menu_it_request_my"
+              name="My Requests"
+              parent="menu_it_maintenance_requests"
+              action="it_request_action_my"
+              sequence="10"/>
+
+    <menuitem id="menu_it_request_all"
+              name="All Requests"
+              parent="menu_it_maintenance_requests"
+              action="it_request_action"
+              sequence="20"/>
+
+    <menuitem id="menu_it_device"
+              name="Devices"
+              parent="menu_it_maintenance_root"
+              action="it_device_action"
+              sequence="20"/>
+
+    <menuitem id="menu_it_customers"
+              name="Customers"
+              parent="menu_it_maintenance_root"
+              action="base.action_partner_form"
+              sequence="30"/>
+
+    <menuitem id="menu_it_maintenance_reporting"
+              name="Reporting"
+              parent="menu_it_maintenance_root"
+              groups="group_it_manager"
+              sequence="90"/>
+
+    <menuitem id="menu_it_request_analysis"
+              name="Maintenance Analysis"
+              parent="menu_it_maintenance_reporting"
+              action="it_request_action_analysis"
+              sequence="10"/>
+
+</odoo>

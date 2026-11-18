@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="it_device_view_tree" model="ir.ui.view">
+        <field name="name">it.device.tree</field>
+        <field name="model">it.device</field>
+        <field name="arch" type="xml">
+            <tree string="Devices" sample="1">
+                <field name="name" decoration-bf="1"/>
+                <field name="serial_number" class="o_force_ltr"/>
+                <field name="device_type" widget="badge"/>
+                <field name="partner_id"/>
+                <field name="location" optional="show"/>
+                <field name="purchase_date" optional="hide"/>
+                <field name="warranty_end_date" optional="show"/>
+                <field name="warranty_state" widget="badge" optional="show"
+                       decoration-success="warranty_state == 'active'"
+                       decoration-danger="warranty_state == 'expired'"/>
+                <field name="open_request_count" string="Open Requests" optional="show"/>
+                <field name="price" optional="hide" sum="Total"/>
+                <field name="currency_id" invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="it_device_view_form" model="ir.ui.view">
+        <field name="name">it.device.form</field>
+        <field name="model">it.device</field>
+        <field name="arch" type="xml">
+            <form string="Device">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_requests" type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="request_count" widget="statinfo" string="Requests"/>
+                        </button>
+                        <button name="action_view_requests" type="object" class="oe_stat_button" icon="fa-money"
+                                groups="it_maintenance.group_it_manager">
+                            <field name="maintenance_cost" widget="statinfo" string="Maintenance Cost"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger"
+                            attrs="{'invisible': [('active', '=', True)]}"/>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Dell Latitude 5420"/></h1>
+                        <h3><field name="serial_number" class="o_force_ltr" placeholder="Serial Number"/></h3>
+                    </div>
+                    <group>
+                        <group string="Device">
+                            <field name="device_type"/>
+                            <field name="partner_id"/>
+                            <field name="location"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Purchase &amp; Warranty">
+                            <field name="purchase_date"/>
+                            <field name="price"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="warranty_end_date"/>
+                            <field name="warranty_state" widget="badge"
+                                   decoration-success="warranty_state == 'active'"
+                                   decoration-danger="warranty_state == 'expired'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Maintenance History" name="history">
+                            <field name="request_ids" readonly="1">
+                                <tree decoration-muted="state == 'cancel'" decoration-success="state == 'done'">
+                                    <field name="reference"/>
+                                    <field name="name"/>
+                                    <field name="request_date"/>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                    <field name="amount_total" sum="Total"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="state" widget="badge"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Owner, configuration, accessories..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="it_device_view_kanban" model="ir.ui.view">
+        <field name="name">it.device.kanban</field>
+        <field name="model">it.device</field>
+        <field name="arch" type="xml">
+            <kanban sample="1">
+                <field name="id"/>
+                <field name="open_request_count"/>
+                <field name="warranty_state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_image_fill_left d-none d-md-block"
+                                 t-attf-style="background-image: url(#{kanban_image('it.device', 'image_128', record.id.raw_value)})"/>
+                            <div class="oe_kanban_details">
+                                <strong class="o_kanban_record_title"><field name="name"/></strong>
+                                <div class="text-muted o_force_ltr"><field name="serial_number"/></div>
+                                <div><field name="partner_id"/></div>
+                                <div class="mt-1">
+                                    <field name="device_type" widget="badge"/>
+                                    <span t-if="record.warranty_state.raw_value == 'active'"
+                                          class="badge rounded-pill text-bg-success ms-1">Warranty</span>
+                                    <span t-if="record.open_request_count.raw_value"
+                                          class="badge rounded-pill text-bg-warning ms-1">
+                                        <t t-esc="record.open_request_count.value"/> open
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="it_device_view_search" model="ir.ui.view">
+        <field name="name">it.device.search</field>
+        <field name="model">it.device</field>
+        <field name="arch" type="xml">
+            <search string="Devices">
+                <field name="name" filter_domain="['|', ('name', 'ilike', self), ('serial_number', 'ilike', self)]"/>
+                <field name="partner_id"/>
+                <field name="location"/>
+                <filter string="Under Warranty" name="under_warranty"
+                        domain="[('warranty_end_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Warranty Expired" name="warranty_expired"
+                        domain="[('warranty_end_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Type" name="group_device_type" context="{'group_by': 'device_type'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="it_device_action" model="ir.actions.act_window">
+        <field name="name">Devices</field>
+        <field name="res_model">it.device</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="it_device_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Register your first device</p>
+            <p>Add the laptops, printers, screens and network devices you maintain for your customers.</p>
+        </field>
+    </record>
+
+</odoo>
