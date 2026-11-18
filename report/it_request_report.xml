@@ -15,111 +15,213 @@
     <template id="it_request_report_job_card_document">
         <t t-call="web.external_layout">
             <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang or o.env.lang)"/>
-            <t t-set="address">
-                <div t-field="o.partner_id"
-                     t-options='{"widget": "contact", "fields": ["address", "name", "phone", "email"], "no_marker": True}'/>
-            </t>
-            <div class="page">
-                <h2>
-                    Job Card <span t-field="o.reference"/>
-                </h2>
-                <h5 class="text-muted" t-field="o.name"/>
+            <t t-set="brand" t-value="o.company_id.primary_color or '#0F7C8C'"/>
+            <t t-set="state_color" t-value="{
+                'new': '#3B82F6',
+                'in_progress': '#F59E0B',
+                'waiting_parts': '#F97316',
+                'done': '#16A34A',
+                'cancel': '#6B7280',
+            }.get(o.state, '#6B7280')"/>
+            <t t-set="label_style" t-value="'font-size: 10px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;'"/>
+            <t t-set="section_style" t-value="'background-color: %s; color: #FFFFFF; padding: 6px 10px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px;' % brand"/>
 
-                <div class="row mt-4 mb-4">
-                    <div class="col-3">
-                        <strong>Device</strong>
-                        <p class="m-0" t-field="o.device_id.name"/>
-                        <p class="m-0 text-muted" t-field="o.device_id.serial_number"/>
-                    </div>
-                    <div class="col-3">
-                        <strong>Type</strong>
-                        <p class="m-0" t-field="o.request_type"/>
-                    </div>
-                    <div class="col-3">
-                        <strong>Technician</strong>
-                        <p class="m-0" t-field="o.user_id"/>
-                    </div>
-                    <div class="col-3">
-                        <strong>Status</strong>
-                        <p class="m-0" t-field="o.state"/>
-                    </div>
+            <div class="page o_it_job_card" style="font-size: 12px; color: #1F2937;">
+
+                <!-- Title bar -->
+                <table class="table-borderless" style="width: 100%; border-collapse: collapse; margin-bottom: 18px;">
+                    <tr>
+                        <td style="vertical-align: bottom;">
+                            <div t-attf-style="font-size: 11px; font-weight: bold; letter-spacing: 2px; color: {{ brand }};">MAINTENANCE JOB CARD</div>
+                            <div style="font-size: 26px; font-weight: bold; line-height: 1.2;" t-field="o.reference"/>
+                            <div dir="auto" style="font-size: 14px; color: #4B5563; margin-top: 2px; text-align: left;" t-field="o.name"/>
+                        </td>
+                        <td style="vertical-align: bottom; text-align: right; width: 35%;">
+                            <span t-attf-style="display: inline-block; background-color: {{ state_color }}; color: #FFFFFF; padding: 5px 14px; border-radius: 12px; font-weight: bold; font-size: 12px;"
+                                  t-field="o.state"/>
+                            <div style="margin-top: 6px; color: #6B7280;">
+                                Priority: <strong style="color: #1F2937;" t-field="o.priority"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div t-attf-style="height: 3px; background-color: {{ brand }}; margin-bottom: 18px;"/>
+
+                <!-- Customer and device -->
+                <table class="table-borderless" style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 16px;">
+                    <tr>
+                        <td style="width: 49%; vertical-align: top; border: 1px solid #E5E7EB; padding: 0;">
+                            <div t-att-style="section_style">CUSTOMER</div>
+                            <div style="padding: 10px;">
+                                <div dir="auto" style="font-size: 14px; font-weight: bold; text-align: left;" t-field="o.partner_id.name"/>
+                                <div t-if="o.partner_id.phone"><i class="fa fa-phone" style="width: 14px;"/> <span t-field="o.partner_id.phone"/></div>
+                                <div t-if="o.partner_id.email"><i class="fa fa-envelope" style="width: 14px;"/> <span t-field="o.partner_id.email"/></div>
+                                <div t-if="o.partner_id.city" dir="auto" style="text-align: left;"><i class="fa fa-map-marker" style="width: 14px;"/> <span t-field="o.partner_id.city"/></div>
+                                <div t-if="not o.partner_id" style="color: #9CA3AF;">No customer</div>
+                            </div>
+                        </td>
+                        <td style="width: 2%;"/>
+                        <td style="width: 49%; vertical-align: top; border: 1px solid #E5E7EB; padding: 0;">
+                            <div t-att-style="section_style">DEVICE</div>
+                            <div style="padding: 10px;">
+                                <div style="font-size: 14px; font-weight: bold;" t-field="o.device_id.name"/>
+                                <table class="table-borderless" style="width: 100%; margin-top: 4px;">
+                                    <tr>
+                                        <td style="color: #6B7280; width: 40%;">Serial Number</td>
+                                        <td style="font-family: monospace;"><span t-field="o.device_id.serial_number"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #6B7280;">Type</td>
+                                        <td><span t-field="o.device_id.device_type"/></td>
+                                    </tr>
+                                    <tr t-if="o.device_id.location">
+                                        <td style="color: #6B7280;">Location</td>
+                                        <td dir="auto" style="text-align: left;"><span t-field="o.device_id.location"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="color: #6B7280;">Warranty</td>
+                                        <td>
+                                            <t t-if="o.device_id.warranty_state == 'active'">
+                                                <span style="color: #16A34A; font-weight: bold;">Active</span>
+                                                until <span t-field="o.device_id.warranty_end_date"/>
+                                            </t>
+                                            <span t-elif="o.device_id.warranty_state == 'expired'" style="color: #DC2626;">
+                                                Expired on <span t-field="o.device_id.warranty_end_date"/>
+                                            </span>
+                                            <span t-else="" style="color: #9CA3AF;">None</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Service details -->
+                <table class="table-borderless" style="width: 100%; border-collapse: collapse; background-color: #F9FAFB; border: 1px solid #E5E7EB; margin-bottom: 16px;">
+                    <tr>
+                        <td style="padding: 10px; width: 20%;">
+                            <div t-att-style="label_style">Type</div>
+                            <div style="font-weight: bold;" t-field="o.request_type"/>
+                        </td>
+                        <td style="padding: 10px; width: 20%;">
+                            <div t-att-style="label_style">Technician</div>
+                            <div style="font-weight: bold;">
+                                <span t-if="o.user_id" t-field="o.user_id"/>
+                                <span t-else="" style="color: #9CA3AF;">Not assigned</span>
+                            </div>
+                        </td>
+                        <td style="padding: 10px; width: 20%;">
+                            <div t-att-style="label_style">Request Date</div>
+                            <div style="font-weight: bold;" t-field="o.request_date"/>
+                        </td>
+                        <td style="padding: 10px; width: 20%;">
+                            <div t-att-style="label_style">Deadline</div>
+                            <div style="font-weight: bold;">
+                                <span t-if="o.deadline" t-field="o.deadline"/>
+                                <span t-else="" style="color: #9CA3AF;">-</span>
+                            </div>
+                        </td>
+                        <td style="padding: 10px; width: 20%;">
+                            <div t-att-style="label_style">Completed On</div>
+                            <div style="font-weight: bold;">
+                                <span t-if="o.date_done" t-field="o.date_done" t-options='{"widget": "date"}'/>
+                                <span t-else="" style="color: #9CA3AF;">-</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Problem and technician report -->
+                <div t-if="o.description" style="margin-bottom: 14px; page-break-inside: avoid;">
+                    <div t-att-style="section_style">PROBLEM DESCRIPTION</div>
+                    <div dir="auto" style="padding: 10px; border: 1px solid #E5E7EB; border-top: none;" t-field="o.description"/>
                 </div>
-                <div class="row mb-4">
-                    <div class="col-3">
-                        <strong>Request Date</strong>
-                        <p class="m-0" t-field="o.request_date"/>
-                    </div>
-                    <div class="col-3" t-if="o.deadline">
-                        <strong>Deadline</strong>
-                        <p class="m-0" t-field="o.deadline"/>
-                    </div>
-                    <div class="col-3" t-if="o.date_done">
-                        <strong>Completed On</strong>
-                        <p class="m-0" t-field="o.date_done"/>
-                    </div>
-                    <div class="col-3" t-if="o.device_id.warranty_state == 'active'">
-                        <strong>Warranty</strong>
-                        <p class="m-0">Under warranty until <span t-field="o.device_id.warranty_end_date"/></p>
-                    </div>
+                <div t-if="o.diagnosis" style="margin-bottom: 14px; page-break-inside: avoid;">
+                    <div t-att-style="section_style">TECHNICIAN REPORT</div>
+                    <div dir="auto" style="padding: 10px; border: 1px solid #E5E7EB; border-top: none;" t-field="o.diagnosis"/>
                 </div>
 
-                <div t-if="o.description" class="mb-4">
-                    <h5>Problem Description</h5>
-                    <div t-field="o.description"/>
+                <!-- Spare parts -->
+                <div style="margin-bottom: 4px;">
+                    <div t-att-style="section_style">SPARE PARTS &amp; LABOR</div>
                 </div>
-                <div t-if="o.diagnosis" class="mb-4">
-                    <h5>Technician Report</h5>
-                    <div t-field="o.diagnosis"/>
-                </div>
-
-                <table class="table table-sm o_main_table" t-if="o.line_ids">
+                <table class="table-borderless" style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
                     <thead>
-                        <tr>
-                            <th class="text-start">Spare Part</th>
-                            <th class="text-end">Quantity</th>
-                            <th class="text-end">Unit Price</th>
-                            <th class="text-end">Subtotal</th>
+                        <tr style="background-color: #F3F4F6; border-bottom: 2px solid #D1D5DB;">
+                            <th style="padding: 7px 8px; text-align: left; width: 5%;">#</th>
+                            <th style="padding: 7px 8px; text-align: left;">Description</th>
+                            <th style="padding: 7px 8px; text-align: right; width: 12%;">Qty</th>
+                            <th style="padding: 7px 8px; text-align: right; width: 18%;">Unit Price</th>
+                            <th style="padding: 7px 8px; text-align: right; width: 18%;">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="o.line_ids" t-as="line">
-                            <td><span t-field="line.part_name"/></td>
-                            <td class="text-end"><span t-field="line.qty"/></td>
-                            <td class="text-end"><span t-field="line.unit_price"/></td>
-                            <td class="text-end"><span t-field="line.subtotal"/></td>
+                        <tr t-foreach="o.line_ids" t-as="line"
+                            t-attf-style="border-bottom: 1px solid #E5E7EB; {{ 'background-color: #FAFAFA;' if line_odd else '' }}">
+                            <td style="padding: 7px 8px; color: #6B7280;" t-out="line_index + 1"/>
+                            <td style="padding: 7px 8px; text-align: left;" dir="auto"><span t-field="line.part_name"/></td>
+                            <td style="padding: 7px 8px; text-align: right;"><span t-field="line.qty"/></td>
+                            <td style="padding: 7px 8px; text-align: right;"><span t-field="line.unit_price"/></td>
+                            <td style="padding: 7px 8px; text-align: right;"><span t-field="line.subtotal"/></td>
+                        </tr>
+                        <tr t-if="o.labor_cost or o.labor_hours" style="border-bottom: 1px solid #E5E7EB;">
+                            <td style="padding: 7px 8px; color: #6B7280;"><i class="fa fa-wrench"/></td>
+                            <td style="padding: 7px 8px;">Labor</td>
+                            <td style="padding: 7px 8px; text-align: right;">
+                                <span t-if="o.labor_hours" t-field="o.labor_hours" t-options='{"widget": "float_time"}'/>
+                                <span t-if="o.labor_hours"> h</span>
+                            </td>
+                            <td style="padding: 7px 8px;"/>
+                            <td style="padding: 7px 8px; text-align: right;"><span t-field="o.labor_cost"/></td>
+                        </tr>
+                        <tr t-if="not o.line_ids and not o.labor_cost">
+                            <td colspan="5" style="padding: 12px 8px; text-align: center; color: #9CA3AF;">No spare parts or labor recorded.</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="row justify-content-end">
-                    <div class="col-5">
-                        <table class="table table-sm">
-                            <tr>
-                                <td>Spare Parts</td>
-                                <td class="text-end"><span t-field="o.parts_total"/></td>
-                            </tr>
-                            <tr>
-                                <td>Labor<t t-if="o.labor_hours"> (<span t-field="o.labor_hours" t-options='{"widget": "float_time"}'/> h)</t></td>
-                                <td class="text-end"><span t-field="o.labor_cost"/></td>
-                            </tr>
-                            <tr class="border-black o_total">
-                                <td><strong>Total</strong></td>
-                                <td class="text-end"><strong t-field="o.amount_total"/></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+                <!-- Totals -->
+                <table class="table-borderless" style="width: 100%; border-collapse: collapse; margin-bottom: 30px; page-break-inside: avoid;">
+                    <tr>
+                        <td style="width: 58%;"/>
+                        <td style="width: 42%;">
+                            <table class="table-borderless" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 5px 8px; color: #6B7280;">Spare Parts</td>
+                                    <td style="padding: 5px 8px; text-align: right;"><span t-field="o.parts_total"/></td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #E5E7EB;">
+                                    <td style="padding: 5px 8px; color: #6B7280;">Labor</td>
+                                    <td style="padding: 5px 8px; text-align: right;"><span t-field="o.labor_cost"/></td>
+                                </tr>
+                                <tr t-attf-style="background-color: {{ brand }}; color: #FFFFFF;">
+                                    <td style="padding: 8px; font-weight: bold; font-size: 14px;">TOTAL</td>
+                                    <td style="padding: 8px; text-align: right; font-weight: bold; font-size: 14px;"><span t-field="o.amount_total"/></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
 
-                <div class="row mt-5">
-                    <div class="col-6">
-                        <p class="mb-5">Technician Signature</p>
-                        <p>______________________________</p>
-                    </div>
-                    <div class="col-6">
-                        <p class="mb-5">Customer Signature</p>
-                        <p>______________________________</p>
-                    </div>
-                </div>
+                <!-- Signatures -->
+                <table class="table-borderless" style="width: 100%; border-collapse: collapse; page-break-inside: avoid;">
+                    <tr>
+                        <td style="width: 45%; vertical-align: top;">
+                            <div t-att-style="label_style">Technician</div>
+                            <div style="height: 45px; border-bottom: 1px solid #9CA3AF;"/>
+                            <div style="margin-top: 4px; color: #6B7280;">
+                                <span t-if="o.user_id" t-field="o.user_id"/> · Date: ____________
+                            </div>
+                        </td>
+                        <td style="width: 10%;"/>
+                        <td style="width: 45%; vertical-align: top;">
+                            <div t-att-style="label_style">Customer</div>
+                            <div style="height: 45px; border-bottom: 1px solid #9CA3AF;"/>
+                            <div style="margin-top: 4px; color: #6B7280;">Name &amp; Signature · Date: ____________</div>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </t>
     </template>
